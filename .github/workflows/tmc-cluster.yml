@@ -29,12 +29,12 @@ jobs:
          sudo mv tmc /usr/local/bin/
 
       # install kapp
-      #- uses: vmware-tanzu/carvel-setup-action@v1
-      #  with:
-      #    token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: vmware-tanzu/carvel-setup-action@v1
+        with:
+         token: ${{ secrets.GITHUB_TOKEN }}
 
       # install kubectl
-      #- uses: azure/setup-kubectl@v1
+      - uses: azure/setup-kubectl@v1
 
       # configure tmc
       # just common login and context conf
