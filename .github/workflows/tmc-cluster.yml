@@ -60,7 +60,6 @@ jobs:
       # use template file and change it name to generated cluster name
       - name: Create cluster
         run: |
-         chmod +w scdf/.github/tmc/tmc-template.yaml
          sed -i 's/name-changeme/'"$CLUSTER_NAME"'/g' scdf/.github/tmc/tmc-template.yaml
          sed -i 's/version-changeme/'"$K8S"'/g' scdf/.github/tmc/tmc-template.yaml
          tmc cluster create -f scdf/.github/tmc/tmc-template.yaml
