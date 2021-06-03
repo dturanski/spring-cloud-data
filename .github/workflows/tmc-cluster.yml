@@ -58,59 +58,53 @@ jobs:
 
       # create cluster
       # use template file and change it name to generated cluster name
-      #- name: Create cluster
-      #  run: |
-      #    sed -i 's/name-changeme/'"$CLUSTER_NAME"'/g' scdf-pro/.github/tmc/tmc-template.yml
-      #    sed -i 's/version-changeme/'"$K8S"'/g' scdf-pro/.github/tmc/tmc-template.yml
-      #    tmc cluster create -f .scdf/.github/tmc/tmc-template.yml
+      - name: Create cluster
+        run: |
+         sed -i 's/name-changeme/'"$CLUSTER_NAME"'/g' scdf-pro/.github/tmc/tmc-template.yml
+         sed -i 's/version-changeme/'"$K8S"'/g' scdf-pro/.github/tmc/tmc-template.yml
+         tmc cluster create -f .scdf/.github/tmc/tmc-template.yml
 
       # wait cluster
       # trick is to request kubeconfig as tmc errors until things are actually up and running
       # do it once more to fail step if timeout
-#       - name: Wait cluster
-#         run: |
-#           echo waiting tmc to give kube config
-#           for i in $(seq 40)
-#           do
-#             (tmc cluster auth kubeconfig get $CLUSTER_NAME > /dev/null 2>&1) && break || echo "waiting cluster $i/40 ..."
-#             sleep 30
-#           done
-#           tmc cluster auth kubeconfig get $CLUSTER_NAME > /dev/null
+      - name: Wait cluster
+        run: |
+          echo waiting tmc to give kube config
+          for i in $(seq 40)
+          do
+            (tmc cluster auth kubeconfig get $CLUSTER_NAME > /dev/null 2>&1) && break || echo "waiting cluster $i/40 ..."
+            sleep 30
+          done
+          tmc cluster auth kubeconfig get $CLUSTER_NAME > /dev/null
 
       # setting up kubeconfig for access
       # well that's great, test scripts needs to have KUBECONFIG so point to default config
-#       - name: Setup kube access
-#         run: |
-#           mkdir -p $HOME/.kube
-#           tmc cluster auth kubeconfig get $CLUSTER_NAME > $HOME/.kube/config
-#           echo KUBECONFIG=$HOME/.kube/config >> $GITHUB_ENV
+      - name: Setup kube access
+        run: |
+          mkdir -p $HOME/.kube
+          tmc cluster auth kubeconfig get $CLUSTER_NAME > $HOME/.kube/config
+          echo KUBECONFIG=$HOME/.kube/config >> $GITHUB_ENV
 
       # tweak settings
       # come up without having scdf-image-regcred secret
       # we also need to relax privileges as skipper/dataflow containers expects root
-#       - name: Tweak settings
-#         env:
-#           DOCKER_USERNAME: ${{ secrets.DOCKER_SPRING_PRIVATE_USERNAME }}
-#           DOCKER_PASSWORD: ${{ secrets.DOCKER_SPRING_PRIVATE_PASSWORD }}
-#           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-#           DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
-#         run: |
-#           kubectl create rolebinding rolebinding-default-privileged-sa-ns_default \
-#             --namespace default \
-#             --clusterrole=vmware-system-tmc-psp-privileged \
-#             --user=system:serviceaccount:default:default
-#           kubectl create clusterrolebinding default-privileged-cluster-role-binding \
-#             --clusterrole=vmware-system-tmc-psp-privileged \
-#             --group=system:authenticated
-#           kubectl create secret docker-registry scdf-image-regcred \
-#             --docker-server=springsource-docker-private-local.jfrog.io \
-#             --docker-username=$DOCKER_USERNAME \
-#             --docker-password=$DOCKER_PASSWORD
-#           kubectl create secret docker-registry scdf-metadata-default \
-#             --docker-username=$DOCKER_HUB_USERNAME \
-#             --docker-password=$DOCKER_HUB_PASSWORD
+      - name: Tweak settings
+        env:
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        run: |
+          kubectl create rolebinding rolebinding-default-privileged-sa-ns_default \
+            --namespace default \
+            --clusterrole=vmware-system-tmc-psp-privileged \
+            --user=system:serviceaccount:default:default
+          kubectl create clusterrolebinding default-privileged-cluster-role-binding \
+            --clusterrole=vmware-system-tmc-psp-privileged \
+            --group=system:authenticated \
+          kubectl create secret docker-registry scdf-metadata-default \
+            --docker-username=$DOCKER_HUB_USERNAME \
+            --docker-password=$DOCKER_HUB_PASSWORD
 
       # print cluster info
-#       - name: Cluster info
-#         run: |
-#           kubectl get all
+      - name: Cluster info
+        run: |
+          kubectl get all
