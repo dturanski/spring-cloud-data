@@ -39,24 +39,22 @@ jobs:
       # configure tmc
       # just common login and context conf
       # tmc token is set to one from jannev as we don't have machine user
-      #- name: Configure tmc
-      #  env:
-      #    TMC_API_TOKEN: ${{ secrets.TMC_API_TOKEN }}
-      #  run: |
-      #    tmc login --name dummy --no-configure
-      #    tmc configure --management-cluster-name aws-hosted --provisioner-name scdf-provisioner
+      - name: Configure tmc
+        env:
+         TMC_API_TOKEN: ${{ secrets.TMC_API_TOKEN }}
+        run: |
+         tmc login --name dummy --no-configure
+         tmc configure --management-cluster-name aws-hosted --provisioner-name scdf-provisioner
       # checkout repos
-      # scdf-pro have tweaks for packaging files and cluster template
-      # spring-cloud-dataflow-acceptance-tests we run tests from there
       # scdf-k8s-packaging dataflow deploy, private repo so needs gh pat to checkout
-      #- uses: actions/checkout@v2
-      #  with:
-      #    path: scdf
+      - uses: actions/checkout@v2
+        with:
+         path: scdf
       # generate cluster name
       # we use date to get semi random string as /dev/urandom may block for real random
       #- name: Generate cluster name
-      #  run: |
-      #    echo CLUSTER_NAME=scdf-helm-at-$(date +%s%N) >> $GITHUB_ENV
+        run: |
+         echo CLUSTER_NAME=scdf-helm-at-$(date +%s%N) >> $GITHUB_ENV
 
       # create cluster
       # use template file and change it name to generated cluster name
