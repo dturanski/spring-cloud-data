@@ -52,7 +52,7 @@ jobs:
          path: scdf
       # generate cluster name
       # we use date to get semi random string as /dev/urandom may block for real random
-      #- name: Generate cluster name
+      - name: Generate cluster name
         run: |
          echo CLUSTER_NAME=scdf-helm-at-$(date +%s%N) >> $GITHUB_ENV
 
