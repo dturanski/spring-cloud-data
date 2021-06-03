@@ -1,5 +1,4 @@
 name: TMC Cluster Empty
-#SiTki6bwjAJiLfYoqmlrdM7Y3mYnxl8wQkimwQU7C9WFuuWcA9jBXO2cMrp3LfXP
 on:
   workflow_dispatch:
     inputs:
