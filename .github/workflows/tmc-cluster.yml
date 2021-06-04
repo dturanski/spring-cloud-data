@@ -1,4 +1,4 @@
-name: TMC Cluster Empty
+name: SCDF Helm AT on TMC
 on:
   workflow_dispatch:
     inputs:
@@ -6,32 +6,49 @@ on:
         description: 'aws k8s version'
         required: true
         default: '1.19.4-1-amazon2'
+      broker:
+        required: true
+        default: rabbit
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Extract Inputs
         env:
           INPUT_K8S: ${{ github.event.inputs.k8s }}
+          INPUT_BROKER: ${{ github.event.inputs.broker }}
         run: |
-          echo K8S=${INPUT_K8S:-1.19.4-1-amazon2}
           echo K8S=${INPUT_K8S:-1.19.4-1-amazon2} >> $GITHUB_ENV
+          case "$INPUT_BROKER" in
+                  rabbit)
+                      echo "RABBIT_ENABLED=true" >> $GITHUB_ENV
+                      echo "KAFKA_ENABLED=false" >> $GITHUB_ENV
+                      ;;
 
+                  kafka)
+                      echo "RABBIT_ENABLED=false" >> $GITHUB_ENV
+                      echo "KAFKA_ENABLED=true" >> $GITHUB_ENV
+                      ;;
+                  *)
+                      echo $"Unsupported broker: $INPUT_BROKER"
+                      exit 1
+          esac
+
+          echo BROKER=${INPUT_BROKER:rabbit} >> $GITHUB_ENV
       # setup common tooling
-      # we need tmc and kapp
+      # we need tmc and helm
       - name: Install tooling
         run: |
+      # tmc
          curl -sLO https://tmc-cli.s3-us-west-2.amazonaws.com/tmc/latest/linux/x64/tmc
          chmod +x tmc
          sudo mv tmc /usr/local/bin/
-
-      # install kapp
-      - uses: vmware-tanzu/carvel-setup-action@v1
-        with:
-         token: ${{ secrets.GITHUB_TOKEN }}
+      # helm
+         curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+         chmod 700 get_helm.sh
+         ./get_helm.sh
 
       # install kubectl
       - uses: azure/setup-kubectl@v1
@@ -104,6 +121,11 @@ jobs:
             --docker-username=$DOCKER_HUB_USERNAME \
             --docker-password=$DOCKER_HUB_PASSWORD
 
+      - name: Install SCDF helm chart
+        - env:
+        - run: |
+            helm repo add bitnami https://charts.bitnami.com/bitnami
+            helm install my-release bitnami/spring-cloud-dataflow --set rabbit.enabled=$RABBIT_ENABLED --set kafka.enabled=$KAFKA_ENABLED
       # print cluster info
       - name: Cluster info
         run: |
