@@ -41,11 +41,9 @@ jobs:
       # we need tmc and helm
       - name: Install tooling
         run: |
-      # tmc
          curl -sLO https://tmc-cli.s3-us-west-2.amazonaws.com/tmc/latest/linux/x64/tmc
          chmod +x tmc
          sudo mv tmc /usr/local/bin/
-      # helm
          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
          chmod 700 get_helm.sh
          ./get_helm.sh
