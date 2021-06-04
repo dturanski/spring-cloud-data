@@ -120,8 +120,7 @@ jobs:
             --docker-password=$DOCKER_HUB_PASSWORD
 
       - name: Install SCDF helm chart
-        - env:
-        - run: |
+        run: |
             helm repo add bitnami https://charts.bitnami.com/bitnami
             helm install my-release bitnami/spring-cloud-dataflow --set rabbit.enabled=$RABBIT_ENABLED --set kafka.enabled=$KAFKA_ENABLED
       # print cluster info
