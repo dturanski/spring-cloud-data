@@ -1,4 +1,4 @@
-name: SCDF Helm AT on TMC
+name: SCDF Helm
 on:
   workflow_dispatch:
     inputs:
