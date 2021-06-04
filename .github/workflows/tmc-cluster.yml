@@ -1,4 +1,4 @@
-name: SCDF Helm
+name: Create TMC cluster and Install SCDF helm
 on:
   workflow_dispatch:
     inputs:
@@ -114,7 +114,7 @@ jobs:
             --user=system:serviceaccount:default:default
           kubectl create clusterrolebinding default-privileged-cluster-role-binding \
             --clusterrole=vmware-system-tmc-psp-privileged \
-            --group=system:authenticated \
+            --group=system:authenticated
           kubectl create secret docker-registry scdf-metadata-default \
             --docker-username=$DOCKER_HUB_USERNAME \
             --docker-password=$DOCKER_HUB_PASSWORD
